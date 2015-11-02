@@ -77,6 +77,45 @@ int sub (int x, int y) {
 
 }
 
+int power (int x, int y) {
+    int ret = 1;
+   for (int i=0;i<y;i++) {
+       ret *= x;
+   }
+    return ret;
+}
+
+int isIsomorphic(char * s1, char * s2, int size) {
+   char * out = new char[size];
+    int mapSize = power(2, sizeof(char)*8);
+    char map[mapSize];
+    memset(map, 0, mapSize);
+    memset(out, 0, size);
+
+    int i;
+    for (i=0;i<mapSize;i++) {
+        if (map[i] != 0)
+        cout<<i<<" map "<<hex<<map[i]<<endl;
+    }
+
+    for (i=0;i<size;i++) {
+        char c = s1[i];
+        if (map[c] == 0) {
+            map[c] = s2[i];
+        }
+        cout<<"map "<<hex<<c<<" = "<<map[c]<<endl;
+        out[i] = map[c];
+    }
+
+    cout<<"out = "<<out;
+    for (int i=0;i<size;i++) {
+        if (out[i] != s2[i])
+            return false;
+    }
+
+    return true;
+}
+
 int main() {
     string name;
 
@@ -97,6 +136,11 @@ int main() {
     }
      */
 
+    char s1[] = "iFooeo";
+    char s2[] = "aGeeef";
+    int ret = isIsomorphic(s1, s2, sizeof(s1));
+    cout<<" isIsomorphic returns "<<ret<<endl;
+
     int max = 0xFFFFFFFF&0x7FFFFFFF;
     cout<<hex<<max<<" = "<<dec<<max<<endl;
 
@@ -112,6 +156,11 @@ int main() {
     n1 = 0x7fffffff;
     n2 = 0x0fffffff;
     cout<<hex<<n1<<" + "<<hex<<n2<<" = "<<add(n1, n2)<<endl;
+
+    n1 = 0x80000000;
+    cout<<hex<<"0x"<<n1<<" shift by 1 to right = ";
+    n1 = n1>>1;
+    cout<<hex<<"0x"<<n1<<endl;
 
     int rst;
     while (1) {
