@@ -1,4 +1,7 @@
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace std;
 
@@ -116,6 +119,30 @@ int isIsomorphic(char * s1, char * s2, int size) {
     return true;
 }
 
+int getMin(int x, int y) {
+    int c = -(x-y < 0);
+    
+    /*
+    cout<<"c = "<<hex<<c<<endl;
+    cout<<"~c = "<<hex<<~c<<endl;
+    
+    cout<<"x&c = "<<hex<<(x&c)<<endl;
+    cout<<"y&~c = "<<hex<<(y&~c)<<endl;
+    */
+    
+    int ret = (x&c) + (y&~c);
+
+    return ret;
+}
+
+
+int getMax(int x, int y) {
+    int c = -(x-y > 0);       
+    int ret = (x&c) + (y&~c);
+
+    return ret;
+}
+
 int main() {
     string name;
 
@@ -170,8 +197,11 @@ int main() {
         cin>>n2;
 
         //cout<<hex<<n1<<" + "<<hex<<n2<<" = "<<add(n1, n2)<<endl;
-        rst = sub(n1, n2);
-        cout<<"0x"<<hex<<n1<<" - "<<"0x"<<hex<<n2<<" = "<<dec<<rst<<" = 0x"<<hex<<rst<<endl;
+        //rst = sub(n1, n2);
+        //cout<<"0x"<<hex<<n1<<" - "<<"0x"<<hex<<n2<<" = "<<dec<<rst<<" = 0x"<<hex<<rst<<endl;
+
+        cout<<"min = "<<dec<<getMin(n1, n2)<<endl;
+        cout<<"max = "<<dec<<getMax(n1, n2)<<endl;
     }
     return 0;
 }
