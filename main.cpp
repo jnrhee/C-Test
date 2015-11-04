@@ -143,6 +143,89 @@ int getMax(int x, int y) {
     return ret;
 }
 
+void reverseString(char * s) {
+    char * start = s;
+    char * end = s;
+    
+    while (*s != '\0') {
+        end = s++;
+    }
+    
+    while (start != end) {
+        char t = *start;
+        *start = *end;
+        *end = t;
+        
+        start++;
+        end--;
+    }
+}
+
+void NtoS(char * o, int n, int * idx) {
+    if (n > 9)
+        NtoS(o, n/10, idx);
+   
+    o[*idx] = (char)('0' + (char)(n%10));
+    cout<<*idx<<"-> "<<o[*idx]<<endl;
+    *idx = *idx + 1;    
+}
+
+char * numToString(int n) {
+    int cnt = 0;
+    int origN = n;
+    
+    /* assume positive number, for negative, put abs() and +/- char */
+    while (n > 0) {
+        n /= 10;
+        cnt++;
+    }
+    n = origN;
+    
+    char * out = (char *)malloc(cnt+1);
+    int idx = 0;
+    NtoS(out, n, &idx);
+    out[cnt] = '\0';
+    
+    return out;
+}
+
+char * compstr(char *s) {
+    char * orig = s;
+    int cnt = 0;
+    
+    while (*s++ != '\0')
+        cnt++;
+    s = orig;
+    
+    char * out = (char *)malloc(cnt+1);
+    int outp = 0;
+    for (int i=0;i<cnt;i++) {
+        out[outp++] = s[i];
+        
+        int rep = 0;
+        for (int j=i+1;j<cnt;j++) {
+            if (s[i] == s[j])
+                rep++;
+            else
+                break;
+        }
+        i += rep;
+        if (rep > 0) {
+            char * ns = numToString(rep+1);        
+            while (*ns != '\0') {
+                out[outp++] = *ns;
+                ns++;
+            }
+        }
+    }
+    
+    out[outp] = '\0';
+    if ((outp-1)<cnt)
+        return out;
+    else
+        return s;
+}
+
 int main() {
     string name;
 
@@ -189,6 +272,18 @@ int main() {
     n1 = n1>>1;
     cout<<hex<<"0x"<<n1<<endl;
 
+    char s[] = "Joon Rhee";
+    cout<<"reverse of "<<s<<" = ";
+    reverseString(s);
+    cout<<s<<endl;
+    
+    n1 = 12345;
+    cout<<"numToString of "<<dec<<n1<<" = "<<dec<<numToString(n1);
+    
+    char cstr[] = "aabcddddefff";
+    
+    cout<<"compress string "<<cstr<<" = "<<compstr(cstr)<<endl;
+    
     int rst;
     while (1) {
         cout<<"Enter number 1"<<endl;
