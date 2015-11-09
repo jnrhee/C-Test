@@ -226,6 +226,127 @@ char * compstr(char *s) {
         return s;
 }
 
+void swap(int n[], int x, int y) {
+    int t = n[x];
+    n[x] = n[y];
+    n[y] = t;
+}
+
+void sort(int n[], int size) {
+    for (int i=0;i<size-1;i++) {
+        int idx = 0;
+
+        for (int j=1;j<size-i;j++) {
+            if (n[j] < n[idx]) {
+                swap(n, idx, j);
+            }
+            idx++;
+        }
+    }
+
+    for (int i=0;i<size;i++) {
+        cout<<n[i]<<" ";
+    }
+
+    cout<<endl;
+}
+
+void insert(int n[], int size, int v) {
+    int idx = -1;
+    for (int i=0;i<size;i++) {
+        if (n[i] > v) {
+            idx = i;
+            break;
+        }
+    }
+
+    if (idx == -1)
+        return;
+
+    for (int i=idx;i<size;i++) {
+        int t = n[i];
+        n[i] = v;
+        v = t;
+    }
+
+    for (int i=0;i<size;i++) {
+        cout<<n[i]<<" ";
+    }
+    cout<<endl;
+}
+
+void rotate(int n[], int size, int rot) {
+    if (rot == 0)
+        return;
+
+    rot = rot%size;
+
+    if (rot < 0)
+        rot = size + rot;
+
+    int idx_to = 0;
+    int idx_from = (size - rot)%size;
+    int val = n[idx_from];
+
+    for (int i=0;i<size;i++) {
+        int t = val;
+        val = n[idx_to];
+        n[idx_to] = t;
+        idx_to = (idx_to+rot)%size;
+    }
+
+    for (int i=0;i<size;i++) {
+        cout<<n[i]<<" ";
+    }
+    cout<<endl;
+}
+
+void swaps(char s[], int m, int n) {
+    char t = s[m];
+    s[m] = s[n];
+    s[n] = t;
+}
+void permus(char s[], int size, int start) {
+    if (start == (size -1)) {
+        cout<<"permus: "<<s<<endl;
+        return;
+    }
+
+    for (int i=start;i<size;i++) {
+        swaps(s, start, i);
+        permus(s, size, start+1);
+        swaps(s, i, start);
+    }
+}
+
+char word[1000];
+int wordIdx;
+int comboCnt;
+
+void combo(char s[], int size, int start, int gnum) {
+    if (gnum > size)
+        return;
+
+    for (int i=start;i<size; i++) {
+       word[wordIdx++] = s[i];
+        if (wordIdx == gnum) {
+            cout<<"combo: "<<word<<endl;
+            comboCnt++;
+            word[wordIdx+1] = '\0';
+        } else {
+            combo(s, size, i+1, gnum);
+        }
+        wordIdx--;
+    }
+}
+
+void comboPrint(char s[], int size, int start, int gnum) {
+    comboCnt = 0;
+    wordIdx = 0;
+    combo(s, size, start, gnum);
+    cout<<"combo total = "<<comboCnt<<endl;
+}
+
 int main() {
     string name;
 
@@ -283,7 +404,21 @@ int main() {
     char cstr[] = "aabcddddefff";
     
     cout<<"compress string "<<cstr<<" = "<<compstr(cstr)<<endl;
-    
+
+    int ia[] = {10, 5, 2, 12, 6, 5, 4, 14, 1, 0, 999, 999, 999};
+    int ia_size = sizeof(ia)/sizeof(ia[0]);
+
+    sort(ia, ia_size);
+    insert(ia, ia_size, 8);
+    insert(ia, ia_size, 3);
+    rotate (ia, ia_size, -2);
+
+    char tstr[] = "ABCDE";
+    int tstr_size = sizeof(tstr)/sizeof(tstr[0]);
+    //cout<<"tsize = "<<tstr_size<<endl;
+    //permus(tstr, tstr_size - 1, 0);
+    comboPrint(tstr, tstr_size - 1, 0, 3);
+
     int rst;
     while (1) {
         cout<<"Enter number 1"<<endl;
