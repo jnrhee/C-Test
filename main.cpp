@@ -2,19 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cmath>
 
 using namespace std;
 
 typedef struct node {
     int val;
-    struct node * left;
-    struct node * right;
-} NODE;
+    struct node * next;
+} Node;
 
-void initNode(NODE *n) {
-    n->val = 1;
-    n->left = NULL;
-    n->right = NULL;
+void initNode(Node *n, int v) {
+    n->val = v;
+    n->next = NULL;
 }
 
 int detectOF(int x1, int y1, int r1) {
@@ -330,9 +329,9 @@ void combo(char s[], int size, int start, int gnum) {
     for (int i=start;i<size; i++) {
        word[wordIdx++] = s[i];
         if (wordIdx == gnum) {
-            cout<<"combo: "<<word<<endl;
             comboCnt++;
             word[wordIdx+1] = '\0';
+            cout<<"combo: "<<word<<endl;
         } else {
             combo(s, size, i+1, gnum);
         }
@@ -345,6 +344,165 @@ void comboPrint(char s[], int size, int start, int gnum) {
     wordIdx = 0;
     combo(s, size, start, gnum);
     cout<<"combo total = "<<comboCnt<<endl;
+}
+
+/*
+ * GCD (a, b, c) = GCD (a, GCD (b, c))
+              = GCD (b, GCD (a, c))
+              = GCD (c, GCD (a, b))
+              = ...
+
+To calculate the LCM, use...
+
+                a * b
+LCM (a, b) = ----------
+             GCD (a, b)
+
+The logic for that is based on prime factorization. The more general form (more than two variables) is...
+
+                                          a                 b        
+LCM (a, b, ...) = GCD (a, b, ...) * --------------- * --------------- * ...
+                                    GCD (a, b, ...)   GCD (a, b, ...)
+ */
+
+int GCD(int x, int y) {
+    return (y==0?x:GCD(y, x%y));
+}
+
+int LCM(int x, int y) {
+    int ret = x*y;
+    
+    return ret/GCD(x, y);
+}
+
+int countFreq(int a[], int size) {
+    /* 
+     * a[i] must be > 0 
+     */
+    
+    cout<<"Count Freq = "<<endl;
+    for (int i=0;i<size;i++) {
+        cout<<a[i]<<", ";
+    }
+    cout<<endl;
+
+    int to;     
+    for (int i=0;i<size;i++) {
+        to = a[i];  
+        if (a[i] > 0)
+            a[i] = 0;
+        
+        while (to > 0) {
+            int tmp = a[to-1];
+            if (a[to-1] > 0)
+                a[to-1] = -1;
+            else
+                a[to-1] += -1;
+            to = tmp;
+        }
+    }
+    
+    cout<<"-----------------------"<<endl;
+    for (int i=0;i<size;i++) {
+        cout<<(i+1)<<" - "<<abs(a[i])<<endl;
+    }
+}
+
+void printNode(Node *head) {
+    cout<<"---- Node Printer -----"<<endl;
+    while (head != NULL) {
+        cout<<head->val<<" ";
+        head = head->next;
+    }
+    
+    cout<<endl;
+}
+
+void swapTwo(Node** headOrig, int x, int y) {
+    Node * head;
+    Node * nodeA = NULL;
+    Node * nodeAParent = NULL;
+    Node * nodeB = NULL;
+    Node * nodeBParent = NULL;
+    
+    head = *headOrig;
+    nodeAParent = (Node *)headOrig;
+    while (head != NULL) {
+        if (head->val == x) {
+            nodeA = head;
+            break;
+        } else {
+            nodeAParent = head;
+            head = head->next;
+        }
+    }
+    
+    if (nodeA == NULL)
+        return;
+
+    head = *headOrig;
+    nodeBParent = (Node *)headOrig;
+    while (head != NULL) {
+        if (head->val == y) {
+            nodeB = head;
+            break;
+        } else {
+            nodeBParent = head;
+            head = head->next;
+        }
+    }
+    
+    if (nodeB == NULL)
+        return;
+    
+    Node * tmp;
+    if ((nodeB->next == nodeA) || (nodeA->next == nodeB)) {
+        if (nodeAParent == (Node *)headOrig) {
+            *headOrig = nodeB;
+            tmp = nodeB->next;
+            nodeB->next = nodeA;
+            nodeA->next = tmp;            
+        } else if (nodeBParent == (Node *)headOrig) {
+            *headOrig = nodeA;
+            tmp = nodeA->next;
+            nodeA->next = nodeB;
+            nodeB->next = tmp;            
+        } else {
+            if (nodeA->next == nodeB) {
+                nodeAParent->next = nodeB;
+                tmp = nodeB->next;
+                nodeB->next = nodeA;
+                nodeA->next = tmp;                        
+            } else {
+                nodeBParent->next = nodeA;
+                tmp = nodeA->next;
+                nodeA->next = nodeB;
+                nodeB->next = tmp;                                        
+            }
+        }        
+    } else {
+        if (nodeAParent == (Node *)headOrig) {
+            *headOrig = nodeB;
+            
+            tmp = nodeB->next;
+            nodeB->next = nodeA->next;
+            nodeBParent->next = nodeA;
+            nodeA->next = tmp;
+        } else if (nodeBParent == (Node *)headOrig) {
+            *headOrig = nodeA;
+            
+            tmp = nodeA->next;
+            nodeA->next = nodeB->next;
+            nodeAParent->next = nodeB;
+            nodeB->next = tmp;
+        } else {
+            tmp = nodeA->next;
+            nodeA->next = nodeB->next;
+            nodeAParent->next = nodeB;
+            nodeB->next = tmp;            
+            nodeBParent->next = nodeA;
+        }
+    }
 }
 
 int main() {
@@ -360,11 +518,6 @@ int main() {
     for (int i=0;i<name.length();i++)
         cout<<name[i];
 
-    NODE n[10];
-    for (int i=0;i<sizeof(n)/sizeof(NODE);i++) {
-        initNode(&n[i]);
-        cout << i;
-    }
      */
 
     char s1[] = "iFooeo";
@@ -414,11 +567,41 @@ int main() {
     rotate (ia, ia_size, -2);
 
     char tstr[] = "ABCDE";
-    int tstr_size = sizeof(tstr)/sizeof(tstr[0]);
+    int tstr_size = sizeof(tstr)/sizeof(tstr[0])-1;
     //cout<<"tsize = "<<tstr_size<<endl;
     //permus(tstr, tstr_size - 1, 0);
-    comboPrint(tstr, tstr_size - 1, 0, 3);
+    //comboPrint(tstr, tstr_size, 0, 3);
+    
+    for (int i=1;i<=tstr_size;i++) {
+        comboPrint(tstr, tstr_size, 0, i);
+        cout<<"--------------"<<endl;
+    }
 
+    int gcd = GCD(128, 64);
+    int lcm = LCM(128, 64);
+    cout<<"gcd = "<<gcd<<" "<<" lcm = "<<lcm<<endl;
+    
+    int ia2[] = {2,4,3,6,2,1};
+    countFreq(ia2, 6);
+    
+    Node *head = NULL;
+    Node *tail = NULL;
+    for (int i=0;i<10;i++) {
+       Node *n = (Node *) malloc(sizeof(Node));
+       initNode(n, i);
+       
+       if (head == NULL)
+           head = tail = n;
+       else {
+           tail->next = n;
+           tail = n;
+       }            
+    }
+    
+    printNode(head);
+    swapTwo(&head, 1, 0);
+    printNode(head);
+    
     int rst;
     while (1) {
         cout<<"Enter number 1"<<endl;
