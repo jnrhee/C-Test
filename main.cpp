@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cmath>
+#include <ctime> 
+#include <bitset>
 
 using namespace std;
 
@@ -418,6 +420,75 @@ void printNode(Node *head) {
     cout<<endl;
 }
 
+/* int findNextBigSub(int a[], int s, int e, int v) {
+    if (v < a[s])
+        return s;
+    
+    int m = (e-s)*(v-a[s])/(a[e]-a[s]) + s;
+    if (m > e)
+        m = e;
+    
+    int idx = m;
+    if (v < a[m]) {
+        for (int i=m-1;i>=0;i--) {
+            if (v > a[m])
+                break;
+            else {
+                idx = i+1;
+            }
+        }
+    } else {
+        
+    }
+        
+        
+    return findNextBigSub(a, )
+}*/
+
+
+int findNextBigIdx(int a[], int size, int v) {
+    for (int i=0;i<size;i++) {
+        if (a[i] > v)
+            return i;
+    }
+    
+    return -1;
+}
+
+
+int findNextBigIdxAdv(int a[], int size, int v) {
+    int end = size-1;
+    
+    if (v < a[0])
+        return 0;
+
+    if (v >= a[end])
+        return -1;
+        
+    int m = end*(v-a[0])/(a[end]-a[0]);
+    if (m > end)
+        m = end;
+    
+    int idx = m;
+    if (v < a[m]) {
+        for (int i=m-1;i>=0;i--) {
+            if (v > a[i]) {
+                idx = i+1;
+                break;                
+            }
+        }
+    } else {
+        for (int i=m+1;i<size;i++) {
+            if (v < a[i]) {
+                idx = i;
+                break;
+            }
+        }        
+    }
+   
+    return idx;
+}
+
 void swapTwo(Node** headOrig, int x, int y) {
     Node * head;
     Node * nodeA = NULL;
@@ -505,6 +576,57 @@ void swapTwo(Node** headOrig, int x, int y) {
     }
 }
 
+void quickSwap(int x, int y) {
+    
+    cout<<"Quick Swap before = "<<x<<", "<<y<<endl;
+    
+    x = x + y;
+    y = x - y;
+    x = x - y;
+    
+    cout<<"Quick Swap after = "<<x<<", "<<y<<endl;
+}
+
+void quickSwap2(int x, int y) {
+    
+    cout<<"Quick Swap2 before = "<<x<<", "<<y<<endl;
+
+    x = x^y;
+    y = x^y;
+    x = x^y;
+    
+    cout<<"Quick Swap2 after = "<<x<<", "<<y<<endl;
+}
+
+int clearLastBit(int x) {
+    return x&(x-1);
+}
+
+int getLastBit(int x) {
+    return x&!(x-1);
+}
+
+#define GBIT(a, b) (((a & (1<<b))>>b) & 0x1)
+#define SBIT(a, v, b) ((a & ~(1<<b)) | (v<<b))
+
+void reverseBit(int x) {
+    int s = 0;
+    int e = 31;
+ 
+    cout<<"Before reverseBit = 0x"<<bitset<32>(x)<<endl;
+    while (s <= e) {
+        int a = GBIT(x, s);
+        int b = GBIT(x, e);       
+        
+        x = SBIT(x, a, e);                
+        x = SBIT(x, b, s);
+        
+        s++;
+        e--;
+    }
+    cout<<"After reverseBit  = 0x"<<bitset<32>(x)<<endl;
+ }
+
 int main() {
     string name;
 
@@ -583,7 +705,7 @@ int main() {
     
     int ia2[] = {2,4,3,6,2,1};
     countFreq(ia2, 6);
-    
+
     Node *head = NULL;
     Node *tail = NULL;
     for (int i=0;i<10;i++) {
@@ -602,6 +724,51 @@ int main() {
     swapTwo(&head, 1, 0);
     printNode(head);
     
+    int biSize = 1000;
+    int bi[biSize];
+    
+    for (int i=0;i<biSize;i++)
+        bi[i] = i;
+    
+    int r1, r2, rv;
+    for (int i=0;i<100;i++) {
+        rv = rand()%biSize;        
+        r1 = findNextBigIdx (bi, biSize, rv);                
+        r2 = findNextBigIdxAdv (bi, biSize, rv);    
+
+        if (r1 != r2)
+            cout<<" FAILURE!!!!!!"<<endl;
+    }
+
+    //int LOOPS = 3000000;
+    int LOOPS = 30;
+    clock_t begin = clock();
+    for (int i=0;i<LOOPS;i++) {
+        rv = rand()%biSize;        
+        r1 = findNextBigIdx (bi, biSize, rv);                
+    }
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    cout<<"Regular e.time findNextBigIdx = "<<elapsed_secs<<endl;
+
+
+    begin = clock();
+    for (int i=0;i<LOOPS;i++) {
+        rv = rand()%biSize;        
+        r1 = findNextBigIdxAdv (bi, biSize, rv);                
+    }
+    end = clock();
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    cout<<"Advanced e.time findNextBigIdx = "<<elapsed_secs<<endl;
+    
+    quickSwap(-5, -13);
+    quickSwap2(-5, -13);
+    
+    reverseBit(0xF70a0030);
+    
+    //cout<<"findNextBigIdx = "<<ri<<endl;
+    //cout<<"adv.findNextBigIdx = "<<ri<<endl;
+    /*
     int rst;
     while (1) {
         cout<<"Enter number 1"<<endl;
@@ -616,5 +783,6 @@ int main() {
         cout<<"min = "<<dec<<getMin(n1, n2)<<endl;
         cout<<"max = "<<dec<<getMax(n1, n2)<<endl;
     }
+    */
     return 0;
 }
