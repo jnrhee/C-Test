@@ -320,31 +320,28 @@ void permus(char s[], int size, int start) {
     }
 }
 
-char word[1000];
-int wordIdx;
+char word[512];
 int comboCnt;
 
-void combo(char s[], int size, int start, int gnum) {
-    if (gnum > size)
+void combo(char s[], int size, int start, int gnum, int idx) {
+    if (gnum > size || gnum <= 0)
         return;
 
     for (int i=start;i<size; i++) {
-       word[wordIdx++] = s[i];
-        if (wordIdx == gnum) {
+       word[idx] = s[i];
+        if (idx == (gnum-1)) {
             comboCnt++;
-            word[wordIdx+1] = '\0';
+            word[idx+1] = '\0';
             cout<<"combo: "<<word<<endl;
         } else {
-            combo(s, size, i+1, gnum);
+            combo(s, size, i+1, gnum, idx+1);
         }
-        wordIdx--;
     }
 }
 
 void comboPrint(char s[], int size, int start, int gnum) {
     comboCnt = 0;
-    wordIdx = 0;
-    combo(s, size, start, gnum);
+    combo(s, size, start, gnum, 0);
     cout<<"combo total = "<<comboCnt<<endl;
 }
 
@@ -627,6 +624,224 @@ void reverseBit(int x) {
     cout<<"After reverseBit  = 0x"<<bitset<32>(x)<<endl;
  }
 
+ typedef struct charNode {
+     char c;
+     int cnt;
+     int sorted;
+     struct charNode * next;
+ } CNODE;
+ 
+ #define CNODE_SIZE 26
+ CNODE cnodes[CNODE_SIZE];
+ CNODE * chead;
+ CNODE * ctail;
+ 
+ void cnodeInit() {
+     chead = NULL;
+     ctail = NULL;
+    CNODE * prev = NULL;
+    for (int i=0;i<CNODE_SIZE;i++) {
+        cnodes[i].c = 'a'+i;
+        cnodes[i].cnt = 0;
+        cnodes[i].sorted = 0;
+        cnodes[i].next = NULL;
+        if (prev != NULL)
+            prev->next = &cnodes[i];
+        prev = &cnodes[i];
+    }
+
+    if (prev != NULL)
+        prev->next = &cnodes[CNODE_SIZE-1];     
+ }
+ 
+ void cnodePut(char c) {
+     cnodes[c-'a'].cnt++;
+ }
+ 
+ void cnode_swap(CNODE *a, CNODE *b) {
+     char c = a->c;
+     int cnt = a->cnt;
+     
+     a->c = b->c;
+     a->cnt = b->cnt;
+     b->c = c;
+     b->cnt = cnt;
+ }
+ 
+ void cnodeSquash() {
+    for (int i=0;i<CNODE_SIZE;i++) {
+        if (cnodes[i].cnt > 0) {
+            if (chead == NULL) {
+                chead = ctail = &cnodes[i];
+            } else {
+                ctail->next = &cnodes[i];
+                ctail = ctail->next;
+            }           
+        }
+    }
+    ctail->next = NULL;
+ }
+ 
+ void cnodeReSquash() {
+     CNODE *head = chead;
+     CNODE *prev = NULL;
+     while (head != NULL) {
+         if (head->cnt == 0) {
+             if (chead == head)
+                 chead = chead->next;
+             else {
+                 if (prev != NULL)
+                    prev->next = head->next;                    
+             }
+         }
+         prev = head;
+         head = head->next;
+     }
+ }
+ 
+ void cnodeSort() {
+     cnodeSquash();
+     
+     while (chead->sorted == 0) {
+         CNODE *head = chead;
+         
+         while (head != NULL) {
+            if (head->next == NULL || head->next->sorted == 1) {
+                 head->sorted = 1;
+                 break;
+            } else {
+                 if (head->cnt < head->next->cnt) {
+                   cnode_swap(head, head->next);
+                }
+            }
+            head = head->next;
+         }
+     }
+     
+    CNODE *head = chead;
+    while (head != NULL) {
+        ctail = head;
+        head = head->next;
+    }
+ }
+  
+ void alternateString(char a[]) {
+    cnodeInit();
+    
+    while (*a != '\0') {
+        cnodePut(*a++);
+    }
+    
+    cnodeSort();
+        
+    CNODE *head = chead;
+    while (head != NULL) {
+        cout<<"AS: "<<head->c<<" cnt:"<<head->cnt<<endl;
+        head = head->next;
+    }    
+    
+    char outs[256] = "";
+    int outPos = 0;
+    int result = 1;
+    int binary = 0;
+        
+    while (chead != NULL) {
+        head = chead;
+        CNODE *target;
+        
+        if (outPos == 0) {
+            target = head;
+        } else {
+            if (outs[outPos-1] != head->c)
+                target = head;
+            else if (head->next != NULL && outs[outPos-1] != head->next->c) {
+                target = head->next;
+            } else {
+                result = 0;
+                break;
+            }
+        }
+        
+        outs[outPos++] = target->c;
+        target->cnt--;
+        
+        cnodeReSquash();
+    }
+    
+    outs[outPos] = '\0';
+    cout<<"alternateString result:"<<result<<" = "<<outs<<endl;
+    
+ }
+ 
+ Node * mergeLL(Node * n1, Node *n2) {
+     Node * head = NULL;
+     Node * tail = NULL;
+     Node * node;
+     
+     while (n1 != NULL || n2 != NULL) {
+         if (n1 == NULL) {
+             node = n2;
+             n2 = n2->next;
+         } else if (n2 == NULL) {
+             node = n1;
+             n1 = n1->next;
+         } else {
+             if (n1->val <= n2->val) {
+                 node = n1;
+                 n1 = n1->next;
+             } else {
+                 node = n2;
+                 n2 = n2->next;
+             }
+         }
+         
+         node->next = NULL;
+         if (head == NULL) {
+             head = tail = node;             
+         } else {
+             tail->next = node;
+             tail = node;             
+         }
+     }
+     
+     return head;
+ }
+ 
+ Node * mergeLLsort(Node * head) {
+     if (head == NULL)
+         return NULL;
+     
+    int size=0;
+    Node *t = head;
+    Node *prev;
+    
+     while (t != NULL) {
+         size++;
+         t = t->next;
+     }
+     
+     if (size == 1)
+         return head;
+          
+     t = prev = head;
+     size /= 2;
+     while (t != NULL & size-- > 0) {
+         prev = t;
+         t = t->next;
+     }     
+     prev->next = NULL;     
+     
+     Node * n1 = mergeLLsort(head);
+     Node * n2 = mergeLLsort(t);
+     
+     return mergeLL(n1, n2);
+ }
+ 
+ Node * mergeLLsort(Node * head, Node *tail) {
+     
+ }
+ 
+ 
 int main() {
     string name;
 
@@ -765,7 +980,38 @@ int main() {
     quickSwap2(-5, -13);
     
     reverseBit(0xF70a0030);
+
+    int m = 10;
+    int n = 9;
+    while (m-- > 0) {
+        while (n-- > 0) {
+            cout<<"m="<<m<<" n="<<n<<endl;
+            if (n <5)
+                break;
+        }
+    }
     
+    char asString[] = "aabbbdef";
+    alternateString(asString);
+            
+    
+    int nsize = 50;
+    Node nodes[nsize];
+    for (int i=0;i<nsize;i++) {
+        nodes[i].val = rand()%100;
+        nodes[i].next = &nodes[i+1];
+    }
+    nodes[nsize-1].next = NULL;
+    
+    Node * hn = mergeLLsort(nodes);
+    
+    cout<<"LL merge sort ----"<<endl;
+    while (hn != NULL) {
+        cout<<hn->val<<" ";
+        hn = hn->next;
+    }    
+    cout<<endl;
+            
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
