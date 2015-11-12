@@ -373,8 +373,7 @@ int LCM(int x, int y) {
     
     return ret/GCD(x, y);
 }
-
-int countFreq(int a[], int size) {
+ void countFreq(int a[], int size) {
     /* 
      * a[i] must be > 0 
      */
@@ -836,11 +835,36 @@ void reverseBit(int x) {
      
      return mergeLL(n1, n2);
  }
- 
- Node * mergeLLsort(Node * head, Node *tail) {
-     
- }
- 
+
+
+ void * aligned_alloc(size_t size, int alignment_bits) {
+        //reserve requested size plus: space for allocating a pointer plus spac$
+        size_t sz=size+sizeof(void*)+(1<<alignment_bits);
+        char *p0=(char*)malloc(sz);
+        if (p0==0) return 0;
+        //advance p to its maximum value
+        char* p=p0+sizeof(void*)+(1<<alignment_bits);
+        //cut less significant bits to achieve alignment
+        p=(char*)((uintptr_t)p&(uintptr_t)~((1<<alignment_bits)-1));
+        //store real addresss in the previous address
+        *(void**)(p-sizeof(void*))=p0;
+        return (void*)p;
+}
+
+void aligned_free(void* p) {
+        free((char*)p-sizeof(void*));
+}
+
+int bitLocation (int val) {
+    int loc = 0;
+
+    while (!(val & 0x1)) {
+        loc++;
+        val = val>>1;
+    }
+
+    return loc;
+}
  
 int main() {
     string name;
@@ -1011,7 +1035,13 @@ int main() {
         hn = hn->next;
     }    
     cout<<endl;
-            
+
+    int alignSize = 0x10000;
+    int bloc = bitLocation(alignSize);
+    void * mem = aligned_alloc(1000, bloc);
+    cout<<dec<<"bit location 1<<"<<bloc<<" aligned size = 0x"<<hex<<alignSize<<"  -  addr = "<<hex<<mem;
+    aligned_free(mem);
+
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
