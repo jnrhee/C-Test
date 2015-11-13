@@ -323,26 +323,58 @@ void permus(char s[], int size, int start) {
 char word[512];
 int comboCnt;
 
-void combo(char s[], int size, int start, int gnum, int idx) {
-    if (gnum > size || gnum <= 0)
+void combo(char s[], int size, int start, int comboSize, int idx) {
+    if (comboSize > size || comboSize <= 0)
         return;
 
     for (int i=start;i<size; i++) {
        word[idx] = s[i];
-        if (idx == (gnum-1)) {
+        if (idx == (comboSize-1)) {
             comboCnt++;
             word[idx+1] = '\0';
             cout<<"combo: "<<word<<endl;
         } else {
-            combo(s, size, i+1, gnum, idx+1);
+            combo(s, size, i+1, comboSize, idx+1);
         }
     }
 }
 
-void comboPrint(char s[], int size, int start, int gnum) {
+void combo2(char s[], int size, int start, int comboSize, int idx) {
+    if (comboSize > size || comboSize <= 0)
+        return;
+
+    /*
+     |------------------------------------------------|
+     idx           <endSize>   comboSize <--------- size
+     */
+    int endSize = (size - comboSize) + idx + 1;
+    if (endSize > size)
+        return;
+    
+    for (int i=start;i<endSize; i++) {
+       word[idx] = s[i];
+        if (idx == (comboSize-1)) {
+            comboCnt++;
+            word[idx+1] = '\0';
+            cout<<"combo: "<<word<<endl;
+        } else {
+            combo(s, size, i+1, comboSize, idx+1);
+        }
+    }
+}
+
+void comboPrint(char s[], int size, int start, int comboSize) {
     comboCnt = 0;
-    combo(s, size, start, gnum, 0);
+    combo(s, size, start, comboSize, 0);
     cout<<"combo total = "<<comboCnt<<endl;
+    
+    /* TODO:
+     * Optimization     
+     * 
+     * int endSize = arraySize - start - idx;
+     * for (int i=start;i<; i++) {
+     * 
+     */
 }
 
 /*
@@ -836,7 +868,29 @@ void reverseBit(int x) {
      return mergeLL(n1, n2);
  }
 
-
+  Node * findKNode(Node * nd, int * k) {
+     Node * ret = NULL;     
+     if (nd->next != NULL)
+         ret = findKNode(nd->next, k);
+     
+     if (ret == NULL) {
+        if (*k == 0)
+         return nd;
+         
+        (*k)--;
+     }
+     
+     return ret;
+ }
+  
+ Node * findKnodeFromTail(Node * head, int k) {
+     if (head == NULL && k < 0)
+         return NULL;
+         
+     return findKNode(head, &k);
+ }
+ 
+ 
  void * aligned_alloc(size_t size, int alignment_bits) {
         //reserve requested size plus: space for allocating a pointer plus spac$
         size_t sz=size+sizeof(void*)+(1<<alignment_bits);
@@ -865,7 +919,20 @@ int bitLocation (int val) {
 
     return loc;
 }
- 
+
+void squashArray(int a[], int size) {
+    int tzcnt = 0;
+    
+    for (int i=0;i<size;i++) {
+        if (a[i] == 0) {
+            tzcnt++;
+        } else if (tzcnt > 0) {
+            a[i-tzcnt] = a[i];
+            a[i] = 0;
+        }
+    }
+}
+
 int main() {
     string name;
 
@@ -932,6 +999,8 @@ int main() {
     //cout<<"tsize = "<<tstr_size<<endl;
     //permus(tstr, tstr_size - 1, 0);
     //comboPrint(tstr, tstr_size, 0, 3);
+    
+    comboPrint(tstr, tstr_size, 0, tstr_size);
     
     for (int i=1;i<=tstr_size;i++) {
         comboPrint(tstr, tstr_size, 0, i);
@@ -1028,6 +1097,7 @@ int main() {
     nodes[nsize-1].next = NULL;
     
     Node * hn = mergeLLsort(nodes);
+    Node * hno = hn;
     
     cout<<"LL merge sort ----"<<endl;
     while (hn != NULL) {
@@ -1036,12 +1106,49 @@ int main() {
     }    
     cout<<endl;
 
+    Node * knode = findKnodeFromTail(hno, 5);
+    if (knode != NULL)
+        cout<<"5 node from hn = "<<knode->val<<endl;
+            
     int alignSize = 0x10000;
     int bloc = bitLocation(alignSize);
     void * mem = aligned_alloc(1000, bloc);
     cout<<dec<<"bit location 1<<"<<bloc<<" aligned size = 0x"<<hex<<alignSize<<"  -  addr = "<<hex<<mem;
     aligned_free(mem);
 
+    int xh = 0xffffffff;
+    int xhn = 32;
+    
+    while (xhn-- > 0) {
+        cout<<hex<<"0x"<<xh<<endl;
+        xh = xh>>1;
+        xhn--;
+    }
+            
+    
+    const int const_a = 10;
+    //const_a = 5;
+    //cout<<const_a
+    
+    unsigned int uia = 10;
+    unsigned int uib = -200;
+    unsigned int uisum = (uia+uib);
+    
+    cout<<"ui sum = 0x"<<hex<<uia<<" + 0x"<<uib<<" = "<<dec<<uisum<<endl;
+    
+    int si[] = {1, 0, 0, 2, 3, 0, 5, 19, 8, 0};
+    int si_size = sizeof(si)/sizeof(si[0]);
+    squashArray(si, si_size);
+    cout<<"squash array = ";
+    for (int i=0;i<si_size;i++)
+        cout<<si[i]<<" ";
+    cout<<endl;
+    
+    unsigned int la = -1;
+    la = la >> 1;
+    
+    cout<<hex<<" Long Int Max = 0x"<<la<<"  dec="<<dec<<la;
+    
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
