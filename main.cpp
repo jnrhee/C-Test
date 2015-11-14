@@ -978,7 +978,7 @@ int strToInt(char str[]) {
     int neg = 0;
     int sum = 0;
 
-    char * orig = str;
+    char *orig = str;
 
     while (*str != '\0') {
         char c = *str;
@@ -1013,6 +1013,235 @@ int strToInt(char str[]) {
         sum = -sum;
 
     return sum;
+}
+
+string ToString(int x) {
+    char ret[2];
+    ret[0] = '0'+x;
+    ret[1] = '\0';
+    
+    return ret;
+}
+
+string DecToBin(int dec) {
+    /* only works for postive */
+    if (dec <= 1){
+        return ToString(dec);
+    } else {
+        //Divide the number by two and append '0' if even or '1' if odd.
+        return DecToBin(dec / 2) + ToString(dec % 2);
+    }
+}
+
+string DecToBin2(int dec) {
+    int max = sizeof(dec)*8;
+    string ret = "";
+    
+    if (dec == 0)
+        return "0";
+    
+    while (dec != 0 && max > 0) {
+        if (dec & 1) {
+            ret = "1"+ret;            
+        } else {
+            ret = "0"+ret;            
+        }
+        
+        dec = (dec>>1) & 0x7fffffff;
+        max--;                
+    }
+    
+    return ret;
+}
+
+string FloatToBin(int * dec) {
+    int max = sizeof(*dec)*8;
+    string ret = "";
+    
+    if (*dec == 0)
+        return "0";
+    
+    while (*dec != 0 && max > 0) {
+        if (*dec & 1) {
+            ret = "1"+ret;            
+        } else {
+            ret = "0"+ret;            
+        }
+        
+        *dec = (*dec>>1) & 0x7fffffff;
+        max--;                
+    }
+    
+    return ret;
+}
+
+
+static Node * shead = NULL;
+static Node * stail = NULL;
+
+void insertN(int v) {
+    Node * n = (Node *)malloc(sizeof(Node));
+    n->val = v;
+    n->next = NULL;
+
+    if (shead == NULL) {
+        shead = n;
+        return;
+    }
+
+    Node *t = shead;
+    Node *prev = shead;
+
+    while (t != NULL) {
+        if (n->val < t->val)
+            break;
+
+        prev = t;
+        t = t->next;
+    }
+
+    if (prev == shead) {
+        shead = n;
+        n->next = t;
+    } else {
+        prev->next = n;
+        n->next = t;
+    }
+}
+
+void deleteN(int v) {
+    Node * t = shead;
+    Node * prev = shead;
+
+    cout<<"delete "<<v<<endl;
+    while (t != NULL) {
+        if (t->val == v)
+            break;
+
+        prev = t;
+        t = t->next;
+    }
+
+    if (t == NULL)
+        return;
+
+    if (prev == shead) {
+        shead = shead->next;
+    } else {
+        prev->next = t->next;
+    }
+
+    free(t);
+}
+
+void printN() {
+    cout<<"------------- Node Print -------------"<<endl;
+
+    Node *n = shead;
+
+    while (n != NULL){
+        cout<<n->val<<" -> ";
+        n = n->next;
+    }
+    cout<<"NULL"<<endl;
+    cout<<"--------------------------------------"<<endl<<endl;
+}
+
+Node * reverseHeadSub(Node * n) {
+    Node * prev = NULL;
+    if (n->next != NULL)
+        prev = reverseHeadSub(n->next);
+
+    n->next = NULL;
+    if (prev == NULL)
+        shead = n;
+    else
+        prev->next = n;
+
+    return n;
+}
+
+void reverseHead() {
+    if (shead == NULL || shead->next == NULL)
+        return;
+
+    reverseHeadSub(shead);
+}
+
+Node * getN(int val){
+    Node * t = shead;
+
+    while (t != NULL) {
+        if (t->val ==  val)
+            return t;
+        t = t->next;
+    }
+
+    return NULL;
+}
+
+int isLoopN() {
+    if (shead == NULL || shead->next == NULL)
+        return 0;
+
+    Node * n1 = shead;
+    Node * n2 = shead->next;
+
+    while (n1 != NULL && n2 != NULL) {
+        if (n1 == n2)
+            return 1;
+
+        n1 = n1->next;
+        if (n2->next == NULL)
+            n2 = NULL;
+        else
+            n2 = n2->next->next;
+    }
+
+    return 0;
+}
+
+Node * loopStartNode() {
+    if (shead == NULL || shead->next == NULL || isLoopN == 0)
+        return NULL;
+
+    Node * n1 = shead;
+    Node * n2 = shead->next;
+
+    int state = 0;
+    int cnt = 0;
+    while (1) {
+        if (n1 == n2) {
+            if (state == 0) {
+                state = 1;
+                cnt = 0;
+            } else {
+                break;
+            }
+        }
+
+        n1 = n1->next;
+        cnt++;
+
+        if (state == 0) {
+           n2 = n2->next->next;
+        }
+    }
+
+    n1 = shead;
+    n2 = shead;
+    while (cnt-- > 0) {
+        n2 = n2->next;
+    }
+
+    while (1) {
+        if (n1 == n2) {
+            return n1;
+        }
+
+        n1 = n1->next;
+        n2 = n2->next;
+    }
 }
 
 int main() {
@@ -1252,6 +1481,51 @@ int main() {
 
     char stri[] = "-58276201";
     cout<<endl<<stri<<" = "<<dec<<strToInt(stri)<<endl;
+
+    
+    cout<<hex<<" Long Int Max = 0x"<<la<<"  dec="<<dec<<la<<endl;
+
+
+    cout<<" dec2bin = " << DecToBin(10)<<endl;
+    cout<<" dec2bin = " << DecToBin2(8)<<endl;
+
+    float f1 = 0.2;
+    cout<<"size of float = "<<sizeof(f1)<<endl;
+    cout<<f1<<" float2bin = " << FloatToBin((int *)&f1)<<endl;
+
+    int rn[3];
+    for (int i=0;i<15;i++) {
+        int val = rand()%100;
+        insertN(val);
+
+        if (i < 3)
+            rn[i] = val;
+    }
+    insertN(-1);
+    insertN(1000);
+    printN();
+
+    for (int i=0;i<3;i++) {
+        deleteN(rn[i]);
+        printN();
+    }
+    deleteN(-1);
+    printN();
+    //deleteN(1000);
+    //printN();
+
+    cout<<"detect loop = "<<isLoopN()<<endl;
+    Node * nd1 = getN(1000);
+    Node * nd2 = getN(rn[2]);
+    nd1->next = nd2;
+    cout<<"detect loop = "<<isLoopN()<<endl;
+    Node * nds = loopStartNode();
+    if (nds != NULL)
+        cout<<"loopstartnode = "<<nds->val<<endl;
+    nd1->next = NULL;
+
+    reverseHead();
+    printN();
 
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
