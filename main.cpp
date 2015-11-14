@@ -933,6 +933,88 @@ void squashArray(int a[], int size) {
     }
 }
 
+void drawSolidRect(char * sc, int x1, int y1, int x2, int y2, int W) {
+    for (int y = y1;y <= y2; y++){
+        for (int x = x1;x <= x2; x++){
+            *(char *)(sc+x+W*y) = '0';
+        }
+    }
+}
+
+void drawRect(char * sc, int x1, int y1, int x2, int y2, int W) {
+    drawSolidRect(sc, x1, y1, x2, y1, W);
+    drawSolidRect(sc, x1, y2, x2, y2, W);
+    drawSolidRect(sc, x1, y1+1, x1, y2-1, W);
+    drawSolidRect(sc, x2, y1+1, x2, y2-1, W);
+
+}
+
+#define GET_BIT(v, n) (((v)>>(n)) & 0x1)
+#define SET_BIT(v, n, a) (((v)&~(1<<(n))) | (a) << (n))
+
+int swapBit2(int val, int i, int j) {
+    int v = GET_BIT(val, i);
+    val = SET_BIT(val, i, GET_BIT(val, j));
+    val = SET_BIT(val, j, v);
+
+    return val;
+}
+
+int swapBit(int val, int i, int j) {
+    int vi = GET_BIT(val, i);
+    int vj = GET_BIT(val, j);
+
+    if (vi == vj)
+        return val;
+
+    val ^= 1<<i;
+    val ^= 1<<j;
+
+    return val;
+}
+
+int strToInt(char str[]) {
+    int size = 0;
+    int neg = 0;
+    int sum = 0;
+
+    char * orig = str;
+
+    while (*str != '\0') {
+        char c = *str;
+        if (c >= '0' && c <= '9') {
+            size++;
+        } else if (c == '-') {
+            neg = 1;
+        } else {
+            return 0;
+        }
+
+        str++;
+    }
+
+    if (size == 0)
+        return 0;
+
+    str = orig;
+    while (*str != '\0') {
+        char c = *str;
+        if (c >= '0' && c <= '9') {
+            size--;
+            int d = c - '0';
+            d *= power(10, size);
+            sum += d;
+        }
+
+        str++;
+    }
+
+    if (neg)
+        sum = -sum;
+
+    return sum;
+}
+
 int main() {
     string name;
 
@@ -978,12 +1060,12 @@ int main() {
     cout<<"reverse of "<<s<<" = ";
     reverseString(s);
     cout<<s<<endl;
-    
+
     n1 = 12345;
     cout<<"numToString of "<<dec<<n1<<" = "<<dec<<numToString(n1);
-    
+
     char cstr[] = "aabcddddefff";
-    
+
     cout<<"compress string "<<cstr<<" = "<<compstr(cstr)<<endl;
 
     int ia[] = {10, 5, 2, 12, 6, 5, 4, 14, 1, 0, 999, 999, 999};
@@ -999,9 +1081,9 @@ int main() {
     //cout<<"tsize = "<<tstr_size<<endl;
     //permus(tstr, tstr_size - 1, 0);
     //comboPrint(tstr, tstr_size, 0, 3);
-    
+
     comboPrint(tstr, tstr_size, 0, tstr_size);
-    
+
     for (int i=1;i<=tstr_size;i++) {
         comboPrint(tstr, tstr_size, 0, i);
         cout<<"--------------"<<endl;
@@ -1010,7 +1092,7 @@ int main() {
     int gcd = GCD(128, 64);
     int lcm = LCM(128, 64);
     cout<<"gcd = "<<gcd<<" "<<" lcm = "<<lcm<<endl;
-    
+
     int ia2[] = {2,4,3,6,2,1};
     countFreq(ia2, 6);
 
@@ -1019,30 +1101,30 @@ int main() {
     for (int i=0;i<10;i++) {
        Node *n = (Node *) malloc(sizeof(Node));
        initNode(n, i);
-       
+
        if (head == NULL)
            head = tail = n;
        else {
            tail->next = n;
            tail = n;
-       }            
+       }
     }
-    
+
     printNode(head);
     swapTwo(&head, 1, 0);
     printNode(head);
-    
+
     int biSize = 1000;
     int bi[biSize];
-    
+
     for (int i=0;i<biSize;i++)
         bi[i] = i;
-    
+
     int r1, r2, rv;
     for (int i=0;i<100;i++) {
-        rv = rand()%biSize;        
-        r1 = findNextBigIdx (bi, biSize, rv);                
-        r2 = findNextBigIdxAdv (bi, biSize, rv);    
+        rv = rand()%biSize;
+        r1 = findNextBigIdx (bi, biSize, rv);
+        r2 = findNextBigIdxAdv (bi, biSize, rv);
 
         if (r1 != r2)
             cout<<" FAILURE!!!!!!"<<endl;
@@ -1052,8 +1134,8 @@ int main() {
     int LOOPS = 30;
     clock_t begin = clock();
     for (int i=0;i<LOOPS;i++) {
-        rv = rand()%biSize;        
-        r1 = findNextBigIdx (bi, biSize, rv);                
+        rv = rand()%biSize;
+        r1 = findNextBigIdx (bi, biSize, rv);
     }
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
@@ -1062,16 +1144,16 @@ int main() {
 
     begin = clock();
     for (int i=0;i<LOOPS;i++) {
-        rv = rand()%biSize;        
-        r1 = findNextBigIdxAdv (bi, biSize, rv);                
+        rv = rand()%biSize;
+        r1 = findNextBigIdxAdv (bi, biSize, rv);
     }
     end = clock();
     elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     cout<<"Advanced e.time findNextBigIdx = "<<elapsed_secs<<endl;
-    
+
     quickSwap(-5, -13);
     quickSwap2(-5, -13);
-    
+
     reverseBit(0xF70a0030);
 
     int m = 10;
@@ -1083,11 +1165,11 @@ int main() {
                 break;
         }
     }
-    
+
     char asString[] = "aabbbdef";
     alternateString(asString);
-            
-    
+
+
     int nsize = 50;
     Node nodes[nsize];
     for (int i=0;i<nsize;i++) {
@@ -1095,47 +1177,46 @@ int main() {
         nodes[i].next = &nodes[i+1];
     }
     nodes[nsize-1].next = NULL;
-    
+
     Node * hn = mergeLLsort(nodes);
     Node * hno = hn;
-    
+
     cout<<"LL merge sort ----"<<endl;
     while (hn != NULL) {
         cout<<hn->val<<" ";
         hn = hn->next;
-    }    
+    }
     cout<<endl;
 
     Node * knode = findKnodeFromTail(hno, 5);
     if (knode != NULL)
         cout<<"5 node from hn = "<<knode->val<<endl;
-            
-    int alignSize = 0x10000;
+
+    int alignSize = 0x10;
     int bloc = bitLocation(alignSize);
-    void * mem = aligned_alloc(1000, bloc);
-    cout<<dec<<"bit location 1<<"<<bloc<<" aligned size = 0x"<<hex<<alignSize<<"  -  addr = "<<hex<<mem;
-    aligned_free(mem);
+   // void * mem = aligned_alloc(100, bloc);
+   // cout<<dec<<"bit location 1<<"<<bloc<<" aligned size = 0x"<<hex<<alignSize<<"  -  addr = "<<hex<<mem;
+   // aligned_free(mem);
 
     int xh = 0xffffffff;
     int xhn = 32;
-    
+
     while (xhn-- > 0) {
         cout<<hex<<"0x"<<xh<<endl;
         xh = xh>>1;
         xhn--;
     }
-            
-    
+
     const int const_a = 10;
     //const_a = 5;
     //cout<<const_a
-    
+
     unsigned int uia = 10;
     unsigned int uib = -200;
     unsigned int uisum = (uia+uib);
-    
+
     cout<<"ui sum = 0x"<<hex<<uia<<" + 0x"<<uib<<" = "<<dec<<uisum<<endl;
-    
+
     int si[] = {1, 0, 0, 2, 3, 0, 5, 19, 8, 0};
     int si_size = sizeof(si)/sizeof(si[0]);
     squashArray(si, si_size);
@@ -1143,12 +1224,35 @@ int main() {
     for (int i=0;i<si_size;i++)
         cout<<si[i]<<" ";
     cout<<endl;
-    
+
     unsigned int la = -1;
     la = la >> 1;
-    
-    cout<<hex<<" Long Int Max = 0x"<<la<<"  dec="<<dec<<la;
-    
+
+    cout<<hex<<" Long Int Max = 0x"<<la<<"  dec="<<dec<<la<<endl;
+
+    int W = 100;
+    int H = 50;
+    char screen[100*50];
+    for (int i=0;i<W*H;i++)
+        screen[i] = '*';
+
+    drawRect(screen, 5, 6, 30, 36, W);
+
+    cout<<endl;
+    char *sc = screen;
+    for (int i=0;i<H;i++) {
+        for (int j = 0; j < W; j++) {
+            cout << *sc++;
+        }
+        cout<<endl;
+    }
+
+    int ihex = 0xF8000;
+    cout<<"SWAP BIT = 0x"<<hex<<swapBit(ihex, 1, 15)<<endl;
+
+    char stri[] = "-58276201";
+    cout<<endl<<stri<<" = "<<dec<<strToInt(stri)<<endl;
+
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
