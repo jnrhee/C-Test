@@ -933,6 +933,67 @@ void squashArray(int a[], int size) {
     }
 }
 
+
+string ToString(int x) {
+    char ret[2];
+    ret[0] = '0'+x;
+    ret[1] = '\0';
+    
+    return ret;
+}
+
+string DecToBin(int dec) {
+    /* only works for postive */
+    if (dec <= 1){
+        return ToString(dec);
+    } else {
+        //Divide the number by two and append '0' if even or '1' if odd.
+        return DecToBin(dec / 2) + ToString(dec % 2);
+    }
+}
+
+string DecToBin2(int dec) {
+    int max = sizeof(dec)*8;
+    string ret = "";
+    
+    if (dec == 0)
+        return "0";
+    
+    while (dec != 0 && max > 0) {
+        if (dec & 1) {
+            ret = "1"+ret;            
+        } else {
+            ret = "0"+ret;            
+        }
+        
+        dec = (dec>>1) & 0x7fffffff;
+        max--;                
+    }
+    
+    return ret;
+}
+
+string FloatToBin(int * dec) {
+    int max = sizeof(*dec)*8;
+    string ret = "";
+    
+    if (*dec == 0)
+        return "0";
+    
+    while (*dec != 0 && max > 0) {
+        if (*dec & 1) {
+            ret = "1"+ret;            
+        } else {
+            ret = "0"+ret;            
+        }
+        
+        *dec = (*dec>>1) & 0x7fffffff;
+        max--;                
+    }
+    
+    return ret;
+}
+
 int main() {
     string name;
 
@@ -1147,7 +1208,15 @@ int main() {
     unsigned int la = -1;
     la = la >> 1;
     
-    cout<<hex<<" Long Int Max = 0x"<<la<<"  dec="<<dec<<la;
+    cout<<hex<<" Long Int Max = 0x"<<la<<"  dec="<<dec<<la<<endl;
+
+
+    cout<<" dec2bin = " << DecToBin(10)<<endl;
+    cout<<" dec2bin = " << DecToBin2(8)<<endl;
+
+    float f1 = 0.2;
+    cout<<"size of float = "<<sizeof(f1)<<endl;
+    cout<<f1<<" float2bin = " << FloatToBin((int *)&f1)<<endl;
     
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
