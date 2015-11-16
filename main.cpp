@@ -891,22 +891,23 @@ void reverseBit(int x) {
  }
  
  
- void * aligned_alloc(size_t size, int alignment_bits) {
-        //reserve requested size plus: space for allocating a pointer plus spac$
-        size_t sz=size+sizeof(void*)+(1<<alignment_bits);
-        char *p0=(char*)malloc(sz);
-        if (p0==0) return 0;
-        //advance p to its maximum value
-        char* p=p0+sizeof(void*)+(1<<alignment_bits);
-        //cut less significant bits to achieve alignment
-        p=(char*)((uintptr_t)p&(uintptr_t)~((1<<alignment_bits)-1));
-        //store real addresss in the previous address
-        *(void**)(p-sizeof(void*))=p0;
-        return (void*)p;
+ void * aligned_alloc(int size, int alignment) {
+        int offset = (alignment - 1)+1;
+
+        void * orig = (void *)malloc(size + offset);
+        if (orig == NULL)
+            return NULL;
+
+        void ** pp = (void **) (((size_t)orig + offset) & ~(alignment - 1));
+
+        pp[-1] = orig;
+
+        return (void *)pp;
 }
 
-void aligned_free(void* p) {
-        free((char*)p-sizeof(void*));
+void aligned_free(void * p) {
+        void ** actual = (void **)p;
+        free(actual[-1]);
 }
 
 int bitLocation (int val) {
@@ -1023,24 +1024,25 @@ string ToString(int x) {
     return ret;
 }
 
-string DecToBin(int dec) {
+string DecToBin2(int dec) {
     /* only works for postive */
     if (dec <= 1){
         return ToString(dec);
     } else {
         //Divide the number by two and append '0' if even or '1' if odd.
-        return DecToBin(dec / 2) + ToString(dec % 2);
+        return DecToBin2(dec / 2) + ToString(dec % 2);
     }
 }
 
-string DecToBin2(int dec) {
+string DecToBin(int dec) {
     int max = sizeof(dec)*8;
     string ret = "";
     
     if (dec == 0)
         return "0";
     
-    while (dec != 0 && max > 0) {
+    //while (dec != 0 && max > 0) {
+    while (max > 0) {
         if (dec & 1) {
             ret = "1"+ret;            
         } else {
@@ -1244,6 +1246,200 @@ Node * loopStartNode() {
     }
 }
 
+float stringToFloat(char s[]) {
+    if (s == NULL)
+        return 0;
+
+    float ret = 0;
+    int neg = 0;
+    if (s[0] == '-') {
+        neg = 1;
+        s++;
+    }
+
+    char *t = s;
+    int cnt = 0;
+    while (*t != '.' && *t != '\0') {
+        cnt++;
+        t++;
+    }
+
+    for (int i=0;i<cnt;i++) {
+        ret += (s[i]-'0')*pow(10,cnt-i-1);
+    }
+
+    cnt = 1;
+    if (*t == '.') {
+        t++;
+        while (*t != '\0') {
+            ret += (*t -'0')/pow(10,cnt);
+            t++;
+            cnt++;
+        }
+    }
+
+    if (neg)
+        ret = -ret;
+
+    return ret;
+}
+
+int squashBitToLeft(int v) {
+    int cnt = 0;
+
+    for (int i=0;i<32;i++) {
+        if (v & (1<<i)) {
+            cnt++;
+        }
+    }
+
+    int ret = 0;
+    int s = 31;
+    while (cnt > 0) {
+       ret |= (1<<s);
+        s--;
+        cnt--;
+    }
+
+    return ret;
+}
+
+int bitToMax(int v) {
+    if (v == 0xffffffffi || v == 0)
+        return v;
+
+    int cnt = 0;
+
+    for (int i=0;i<32;i++) {
+        if (v & (1<<i)) {
+            cnt++;
+        }
+    }
+
+    int ret = 0;
+    int s = 30;
+    while (cnt > 0) {
+        ret |= (1<<s);
+        s--;
+        cnt--;
+    }
+
+    return ret;
+}
+
+
+int bitToMin(int v) {
+    if (v == 0xffffffff || v == 0)
+        return v;
+
+    int cnt = 0;
+
+    for (int i=0;i<32;i++) {
+        if (v & (1<<i)) {
+            cnt++;
+        }
+    }
+
+    int ret = 0x80000000;
+    cnt--;
+    int s = 30;
+    while (cnt > 0) {
+        ret |= (1<<s);
+        s--;
+        cnt--;
+    }
+
+    return ret;
+}
+
+static int binsIdx;
+void doBinarySearch(int a[], int val, int l, int r) {
+    if (binsIdx != -1)
+        return;
+
+    if (l > r)
+        return;
+
+   int mid = (l+r)/2;
+
+    if (a[mid] == val) {
+        binsIdx = mid;
+        return;
+    }
+
+    if (a[mid] > val)
+        doBinarySearch(a, val, l, mid-1);
+    else
+        doBinarySearch(a, val, mid+1, r);
+
+}
+
+int binarySearch(int a[], int size, int val) {
+    binsIdx = -1;
+
+    doBinarySearch(a, val, 0, size-1);
+
+    return binsIdx;
+}
+
+void doRBS(int a[], int l, int r, int size) {
+    if (binsIdx != -1)
+        return;
+
+    if (l > r)
+        return;
+
+    int mid = (l+r)/2;
+    int val = a[mid];
+
+    /* is this the turning index? */
+    int prev = mid-1;
+    if (prev < 0)
+        prev = size-1;
+
+    if (val < a[prev]) {
+        binsIdx = mid;
+        return;
+    }
+
+    if (a[l] > val)
+        doRBS(a, l, mid-1, size);
+    else if (a[r] < val)
+        doRBS(a, mid+1, r, size);
+    else {
+        binsIdx = l;
+        return;
+    }
+}
+
+int findRotateIdx(int a[], int size) {
+    binsIdx = -1;
+
+    doRBS(a, 0, size-1, size);
+
+    return binsIdx;
+}
+
+void rotateArray(int a[], int size, int n) {
+    int fa[size];
+    for (int i=0;i<size;i++) {
+        fa[i] = a[i];
+    }
+
+    for (int i=0;i<size;i++) {
+        int from = (size - n +i)%size;
+        a[i] = fa[from];
+    }
+}
+
+void printIntArray(int a[], int size) {
+    cout<<endl;
+    for (int i=0;i<size;i++)
+        cout<<a[i]<<" ";
+
+    cout<<endl;
+}
+
 int main() {
     string name;
 
@@ -1421,11 +1617,10 @@ int main() {
     if (knode != NULL)
         cout<<"5 node from hn = "<<knode->val<<endl;
 
-    int alignSize = 0x10;
-    int bloc = bitLocation(alignSize);
-   // void * mem = aligned_alloc(100, bloc);
-   // cout<<dec<<"bit location 1<<"<<bloc<<" aligned size = 0x"<<hex<<alignSize<<"  -  addr = "<<hex<<mem;
-   // aligned_free(mem);
+    int alignSize = 0x100;
+    void * mem = aligned_alloc(100, alignSize);
+    cout<<"aligned size = 0x"<<hex<<alignSize<<"  -  addr = "<<hex<<mem<<endl;
+    aligned_free(mem);
 
     int xh = 0xffffffff;
     int xhn = 32;
@@ -1526,6 +1721,35 @@ int main() {
 
     reverseHead();
     printN();
+
+    char fstr[] = "-123.14";
+    cout<<"floatToString = "<<stringToFloat(fstr)<<endl;
+
+    int sqi = 0xa01100;
+    cout<<"squashToLeft of "<<hex<<DecToBin(sqi)<<endl;
+    cout<<"squashToLeft is "<<hex<<DecToBin(squashBitToLeft(sqi))<<endl;
+
+    cout<<"max bit = "<<DecToBin(bitToMax(sqi))<<endl;
+    cout<<"min bit = "<<DecToBin(bitToMin(sqi))<<endl;
+
+    int bina[]= {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int binasize = sizeof(bina)/sizeof(bina[0]);
+    int sidx = binarySearch(bina, binasize, 7);
+    cout<<"binary search = "<<dec<<sidx<<endl;
+
+    printIntArray(bina, binasize);
+    int ridx = findRotateIdx(bina, binasize);
+    cout<<" rot idx = "<<ridx<<endl;
+
+    rotateArray(bina, binasize, binasize-1);
+    printIntArray(bina, binasize);
+    ridx = findRotateIdx(bina, binasize);
+    cout<<" rot idx = "<<ridx<<endl;
+
+    rotateArray(bina, binasize, 3);
+    printIntArray(bina, binasize);
+    ridx = findRotateIdx(bina, binasize);
+    cout<<" rot idx = "<<ridx<<endl;
 
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
