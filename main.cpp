@@ -233,7 +233,7 @@ void swap(int n[], int x, int y) {
     n[y] = t;
 }
 
-void sort(int n[], int size) {
+void bubbleSort(int n[], int size) {
     for (int i=0;i<size-1;i++) {
         int idx = 0;
 
@@ -1440,6 +1440,97 @@ void printIntArray(int a[], int size) {
     cout<<endl;
 }
 
+int countBits(int x) {
+    int cnt = 0;
+    int idx = 1;
+
+    while (idx != 0) {
+        if (x & idx)
+            cnt++;
+        idx = idx<<1;
+    }
+
+    return cnt;
+}
+
+void insertionSort(int a[], int size) {
+    if (size < 2)
+        return;
+
+    for (int i=1;i<size;i++) {
+        int loc = -1;
+        int val = a[i];
+        for (int j=0;j<i;j++) {
+            if (val < a[j]) {
+                loc = j;
+                break;
+            }
+        }
+
+        /* needs to insert and shift */
+        if (loc != -1) {
+            for (int m=i;m>loc;m--) {
+                a[m] = a[m-1];
+            }
+            a[loc] = val;
+        }
+    }
+}
+
+void doIS(char *s, int size, int sidx, int widx, char *word) {
+    if (sidx == size-1) {
+        word[widx++] = s[sidx];
+        word[widx++] = '\0';
+        cout<<word<<endl;
+        return;
+    }
+
+    word[widx++] = s[sidx];
+
+    for (int i=0;i<2;i++) {
+        if (i==0)
+            word[widx++] = ' ';
+
+        doIS(s, size, sidx+1, widx, word);
+
+        if (i==0)
+            widx--;
+    }
+
+}
+
+void insertSpace(char * s) {
+    int size = strlen(s);
+
+    if (size == 0)
+        return;
+
+    char wbuf[size*2];
+    cout<<"InsertSpace -----------"<<endl;
+
+    doIS(s, size, 0, 0, wbuf);
+}
+
+void findTripletLessThanSum(int a[], int size, int sum) {
+    if (size < 3)
+        return;
+
+    cout<<"findTripletLessThanSum()------"<<endl;
+    bubbleSort(a, size);
+    cout<<"SUM = "<<sum<<endl;
+    for (int i=0;i<size-2;i++) {
+        for (int j=i+1;j<size-1;j++) {
+            for (int m=j+1;m<size;m++) {
+               int s = a[i] + a[j] + a[m];
+                if (s < sum)
+                    cout<<"sum = "<<s<<" : ["<<a[i]<<" "<<a[j]<<" "<<a[m]<<"]"<<endl;
+                else
+                    break;
+            }
+        }
+    }
+}
+
 int main() {
     string name;
 
@@ -1496,7 +1587,7 @@ int main() {
     int ia[] = {10, 5, 2, 12, 6, 5, 4, 14, 1, 0, 999, 999, 999};
     int ia_size = sizeof(ia)/sizeof(ia[0]);
 
-    sort(ia, ia_size);
+    bubbleSort(ia, ia_size);
     insert(ia, ia_size, 8);
     insert(ia, ia_size, 3);
     rotate (ia, ia_size, -2);
@@ -1751,6 +1842,18 @@ int main() {
     ridx = findRotateIdx(bina, binasize);
     cout<<" rot idx = "<<ridx<<endl;
 
+    int cnti = 0xf000a0f1;
+    cout<<" cnt bits = "<<countBits(cnti)<<endl;
+
+    int insa[]= {0, 1, -2, 6, 3, 7, 8, 19, 10};
+    int insaSize = sizeof(insa)/sizeof(insa[0]);
+    insertionSort(insa, insaSize);
+    printIntArray(insa, insaSize);
+
+    char isStr[] = "ABCDEF";
+    insertSpace(isStr);
+
+    findTripletLessThanSum(insa, insaSize, 10);
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
