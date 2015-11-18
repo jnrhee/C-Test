@@ -276,7 +276,7 @@ void insert(int n[], int size, int v) {
     cout<<endl;
 }
 
-void rotate(int n[], int size, int rot) {
+void rotateIntArray(int n[], int size, int rot) {
     if (rot == 0)
         return;
 
@@ -1127,7 +1127,7 @@ void deleteN(int v) {
     if (t == NULL)
         return;
 
-    if (prev == shead) {
+    if (t == shead) {
         shead = shead->next;
     } else {
         prev->next = t->next;
@@ -1305,7 +1305,7 @@ int squashBitToLeft(int v) {
 }
 
 int bitToMax(int v) {
-    if (v == 0xffffffffi || v == 0)
+    if (v == 0xffffffff || v == 0)
         return v;
 
     int cnt = 0;
@@ -1392,11 +1392,11 @@ void doRBS(int a[], int l, int r, int size) {
     int mid = (l+r)/2;
     int val = a[mid];
 
-    /* is this the turning index? */
     int prev = mid-1;
     if (prev < 0)
         prev = size-1;
 
+    /* is this the turning index? */
     if (val < a[prev]) {
         binsIdx = mid;
         return;
@@ -1420,7 +1420,7 @@ int findRotateIdx(int a[], int size) {
     return binsIdx;
 }
 
-void rotateArray(int a[], int size, int n) {
+void rotateIntArrayCopy(int a[], int size, int n) {
     int fa[size];
     for (int i=0;i<size;i++) {
         fa[i] = a[i];
@@ -1531,6 +1531,73 @@ void findTripletLessThanSum(int a[], int size, int sum) {
     }
 }
 
+int myDiv(int n, int d) {
+    int sign = 1;
+    
+    if (d == 0 || n == 0)
+        return 0;
+    
+    if (n<0) {
+        n = -n;
+        sign *= -1;
+    }
+    
+    if (d<0) {
+        d = -d;
+        sign *= -1;
+    }
+    
+    int cnt = 0;
+    
+    while (n >= d) {
+        cnt++;
+        n -= d;
+    }
+    
+    return sign*cnt;
+}
+
+void swapChar(char *x, char *y) {
+    char t = *x;
+    *x = *y;
+    *y = t;
+}
+
+
+void interArrayToDo(char a[], int size, int m) {
+    /* need to use interArray algorithm below
+     * 
+     */
+}
+
+/*
+ First swap elements in the middle pair
+Next swap elements in the middle two pairs
+Next swap elements in the middle three pairs
+iterate n-1 steps.
+
+Ex: with n = 4.
+a1 a2 a3 a4 b1 b2 b3 b4
+a1 a2 a3 b1 a4 b2 b3 b4
+a1 a2 b1 a3 b2 a4 b3 b4
+a1 b1 a2 b2 a3 b3 a4 b4
+ */
+
+void interArray(char a[], int size) {
+    if (size%2)
+        return;
+    
+    int m = size/2;
+    
+    for (int i=m-1;i>0;i--) {
+        int end = (m-i) + m-1;
+        
+        for (int j=i;j<end;j+= 2) {
+            swapChar(&a[j], &a[j+1]);
+        }
+    }
+}
+
 int main() {
     string name;
 
@@ -1590,7 +1657,7 @@ int main() {
     bubbleSort(ia, ia_size);
     insert(ia, ia_size, 8);
     insert(ia, ia_size, 3);
-    rotate (ia, ia_size, -2);
+    rotateIntArray (ia, ia_size, -2);
 
     char tstr[] = "ABCDE";
     int tstr_size = sizeof(tstr)/sizeof(tstr[0])-1;
@@ -1780,21 +1847,24 @@ int main() {
     cout<<f1<<" float2bin = " << FloatToBin((int *)&f1)<<endl;
 
     int rn[3];
+    for (int i=0;i<3;i++) {
+        rn[i] = -(i+2);
+        insertN(rn[i]);
+    }
+    
     for (int i=0;i<15;i++) {
         int val = rand()%100;
         insertN(val);
-
-        if (i < 3)
-            rn[i] = val;
     }
     insertN(-1);
-    insertN(1000);
+    insertN(1000);    
     printN();
 
-    for (int i=0;i<3;i++) {
+    for (int i=0;i<2;i++) {
         deleteN(rn[i]);
         printN();
     }
+    
     deleteN(-1);
     printN();
     //deleteN(1000);
@@ -1832,12 +1902,12 @@ int main() {
     int ridx = findRotateIdx(bina, binasize);
     cout<<" rot idx = "<<ridx<<endl;
 
-    rotateArray(bina, binasize, binasize-1);
+    rotateIntArray(bina, binasize, binasize-1);
     printIntArray(bina, binasize);
     ridx = findRotateIdx(bina, binasize);
     cout<<" rot idx = "<<ridx<<endl;
 
-    rotateArray(bina, binasize, 3);
+    rotateIntArray(bina, binasize, 3);
     printIntArray(bina, binasize);
     ridx = findRotateIdx(bina, binasize);
     cout<<" rot idx = "<<ridx<<endl;
@@ -1854,6 +1924,21 @@ int main() {
     insertSpace(isStr);
 
     findTripletLessThanSum(insa, insaSize, 10);
+    
+    unsigned int ui = 0x10000000;
+    ui = ui>>1;
+    cout<<"unsigned int shift = "<<hex<<DecToBin(ui)<<endl;
+
+    cout<<" my div = "<<dec<<myDiv(-803, -2)<<endl;
+    
+    //char inta[]= {'0', '1', '2', '3', '4', '5', 'A', 'B', 'C', 'D'};
+    char inta[]= {'1', '2', '3', '4', '5', 'A', 'B', 'C', 'D', 'E'};
+    int intaSize = sizeof(inta)/sizeof(inta[0]);
+    inta[intaSize] = '\0';
+
+    interArray(inta, intaSize);
+    cout<<"interArray = "<<inta<<endl;
+    
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
