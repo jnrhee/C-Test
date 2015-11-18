@@ -22,6 +22,12 @@ int detectOF(int x1, int y1, int r1) {
     return ( ((~r1&0x1)&x1&y1) | (r1 & (~x1&0x1) & (~y1&0x1)));
 }
 
+int neg(int x) {
+    int v = ~x + 0x1;
+
+    return v;
+}
+
 int add (int x, int y) {
     int i;
     int c=0;
@@ -1598,6 +1604,56 @@ void interArray(char a[], int size) {
     }
 }
 
+int findDupInt(int a[], int size) {
+  int val = 0;
+
+    for (int i=0;i<size;i++) {
+        val ^= a[0];
+    }
+}
+
+void divAndPrint(int v, int d) {
+    int dec = v/d;
+    int rem = v % d;
+
+    cout<<v<<"/"<<d<<" = "<<dec;
+
+    if (rem != 0) {
+        cout << ".";
+    } else {
+        return;
+    }
+
+    int out[256];
+    int cnt=0;
+    int repeat= 0;
+    while (rem != 0 && !repeat) {
+
+        int prev = rem;
+
+        v = 10*rem;
+        dec = v/d;
+        rem = v % d;
+        out[cnt++] = dec;
+
+        if (rem == prev) {
+            repeat = 1;
+        }
+    }
+
+    if (repeat)
+        cout<<'(';
+
+    for (int i=0;i<cnt;i++)
+        cout<<out[i];
+
+    if (repeat)
+        cout<<')';
+
+    cout<<endl;
+
+}
+
 int main() {
     string name;
 
@@ -1938,7 +1994,11 @@ int main() {
 
     interArray(inta, intaSize);
     cout<<"interArray = "<<inta<<endl;
-    
+
+    cout<<"neg 2 = "<<neg(123)<<endl;
+
+    divAndPrint(123,13);
+
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
