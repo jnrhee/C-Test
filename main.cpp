@@ -57,6 +57,30 @@ int add (int x, int y) {
     return rest;
 }
 
+int add2 (int x, int y) {
+    int i;
+    int c=0;
+    int r;
+    int b1, b2;
+    int rest = 0;
+
+    for (i=0;i<sizeof(x)*8;i++) {
+        b1 = (x>>i)&0x1;
+        b2 = (y>>i)&0x1;
+
+        r = ((b1^b2)&((~c)&0x1)) + (((~(b1^b2))&0x1)&(c));
+        c = (b1&b2) + (b2&c) + (b1&c);
+
+        rest |= r<<i;
+    }
+
+    if ((x > 0 && y > 0 && rest < 0) ||
+                (x < 0 && y < 0 && rest > 0)){
+        cout<<"OVERFLOW detected!!!!"<<endl;
+    }
+    return rest;
+}
+
 int sub (int x, int y) {
     int i;
     int c=0;
@@ -1716,6 +1740,44 @@ void findMaxSubSum(int a[], int size) {
     cout<<"findMaxSubSum()  SUM:"<<max<<" ("<<maxL<<", "<<maxR<<")"<<endl;
 }
 
+int swapBit3(int v) {
+    int l= 31;
+    int r=0;
+
+    while (l > r) {
+        int x = (v>>l)&0x1;
+        int y = (v>>r)&0x1;
+
+        if (x != y)
+            v ^= (1<<l)|(1<<r);
+
+        l--;
+        r++;
+    }
+
+    return v;
+}
+
+int swapBit4(int v) {
+    int l = 31;
+    int r=0;
+
+    while (l > r) {
+        int x = (v>>l)&0x1;
+        int y = (v>>r)&0x1;
+
+        if (x != y) {
+            v &= ~((1 << l) | (1 << r));
+            v |= (~x&0x1)<<l | (~y&0x1)<<r;
+        }
+
+        l--;
+        r++;
+    }
+
+    return v;
+}
+
 int main() {
     string name;
 
@@ -2073,7 +2135,12 @@ int main() {
     int maxiSize = sizeof(maxi)/sizeof(maxi[0]);
     findMaxSubSum(maxi, maxiSize);
     
-    
+    cout<<"swapBit ="<<hex<<swapBit3(0xf0010a0a)<<"  "<<swapBit4(0xf0010a0a)<<endl;
+
+    int a1 = 27;
+    int a2 = 96;
+    cout<<dec<<(a1+a2)<<" add2 = "<<add2(a1, a2)<<endl;
+
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
