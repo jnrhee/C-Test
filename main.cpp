@@ -1636,6 +1636,10 @@ void divAndPrint(int v, int d) {
         rem = v % d;
         out[cnt++] = dec;
 
+        /* TODO:
+         * 1. need to save all history and search.
+         * 2. put ().  (eg, .2345345... -> .2(345)
+         */
         if (rem == prev) {
             repeat = 1;
         }
@@ -1652,6 +1656,64 @@ void divAndPrint(int v, int d) {
 
     cout<<endl;
 
+}
+
+typedef unsigned int UI;
+
+UI getNextNoOnes(UI v) {
+    while (1) {
+        if (((((v>>1)^v) & v) == v) && 
+                (((v<<1)^v) & v) == v)
+                return v;
+        
+        cout<<v<<": NoOnes = " << DecToBin2(v)<<endl;
+
+        v++;
+    }         
+}
+
+int myXOR(int x, int y)
+{
+    /* (~x | ~y) = to clear bits if both has ones */
+   return (x | y) & (~x | ~y);
+}
+
+void findMaxSubSum(int a[], int size) {
+    int l, r;     
+    int maxL, maxR;
+    int max=a[0];
+    int sum=0;
+    
+    l = r = 0;
+    maxL = maxR = 0;
+    for (int i=0;i<size;i++) {
+        sum = a[i];        
+        if (sum < 0)
+            continue;
+
+        l = r = i;
+        
+        if (max < sum) {
+            maxL = l;
+            maxR = r;
+            max = sum;
+        }
+                
+        for (int j=i+1;j<size;j++) {
+            sum += a[j];
+            if (sum < 0)
+                break;
+
+            if (max < sum) {
+                max = sum;
+                r = j;
+                maxL = l;
+                maxR = r;
+            }            
+        }
+    }
+    
+    cout<<"findMaxSubSum()  SUM:"<<max<<" ("<<maxL<<", "<<maxR<<")"<<endl;
 }
 
 int main() {
@@ -1997,8 +2059,21 @@ int main() {
 
     cout<<"neg 2 = "<<neg(123)<<endl;
 
-    divAndPrint(123,13);
+    //TODO: divAndPrint(123,13);
+    divAndPrint(12, 50);
+    
+    unsigned int uix = 22;
+    uix = getNextNoOnes(uix);
+    cout<<uix<<": NoOnes = " << DecToBin2(uix)<<endl;
 
+    for (int i=0;i>0;i--) 
+        cout<<"test"<<endl;
+    
+    int maxi[] = {5, -9, 6, -2, 3};
+    int maxiSize = sizeof(maxi)/sizeof(maxi[0]);
+    findMaxSubSum(maxi, maxiSize);
+    
+    
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
     /*
