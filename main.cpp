@@ -1462,6 +1462,43 @@ void rotateIntArrayCopy(int a[], int size, int n) {
     }
 }
 
+int doSearchRotatedIntArray(int a[], int l, int r, int v) {
+    if (l > r)
+        return -1;
+
+    if ((r - l) < 2) {
+        if (a[l] == v)
+            return l;
+        else if (a[r] == v)
+            return r;
+        else
+            return -1;
+    }
+
+    int m = (l+r)/2;
+    if (v == a[m])
+        return m;
+
+    int l2 = m-1;
+    int r1 = m+1;
+
+    if (a[l] <= a[l2]) {
+        if (v <= a[l2])
+            return doSearchRotatedIntArray(a, l, l2, v);
+        else
+            return doSearchRotatedIntArray(a, r1, r, v);
+    } else {
+        if (v >= a[r1])
+            return doSearchRotatedIntArray(a, r1, r, v);
+        else
+            return doSearchRotatedIntArray(a, l, l2, v);
+    }
+}
+
+int searchRotatedIntArray(int a[], int size, int v) {
+    return doSearchRotatedIntArray(a, 0, size-1, v);
+}
+
 void printIntArray(int a[], int size) {
     cout<<endl;
     for (int i=0;i<size;i++)
@@ -1778,6 +1815,42 @@ int swapBit4(int v) {
     return v;
 }
 
+int doPower2(int x, int y){
+
+    if (y == 0)
+        return 1;
+    if (y == 1)
+        return x;
+
+    return x*doPower2(x, y-1);
+}
+
+float power2(int x, int y) {
+    int neg = 1;
+    if (y < 0)
+        neg = -1;
+
+    int ret = doPower2(x, neg*y);
+
+    if (neg == -1)
+        return (float)1/(float)ret;
+    else
+        return (float)ret;
+}
+
+int power3(int x, unsigned int y)
+{
+    if( y == 0)
+        return 1;
+
+    int temp = power3(x, y/2);
+    
+    if (y%2 == 0)
+        return temp*temp;
+    else
+        return x*temp*temp;
+}
+
 int main() {
     string name;
 
@@ -2092,6 +2165,9 @@ int main() {
     ridx = findRotateIdx(bina, binasize);
     cout<<" rot idx = "<<ridx<<endl;
 
+    int ras = searchRotatedIntArray(bina, binasize, 7);
+    cout<<"rotate searh = "<<ras;
+
     int cnti = 0xf000a0f1;
     cout<<" cnt bits = "<<countBits(cnti)<<endl;
 
@@ -2140,6 +2216,9 @@ int main() {
     int a1 = 27;
     int a2 = 96;
     cout<<dec<<(a1+a2)<<" add2 = "<<add2(a1, a2)<<endl;
+
+    cout<<"power2 = "<<power2(2, 4)<<endl;
+    cout<<"power2 = "<<power2(2, -4)<<endl;
 
     //cout<<"findNextBigIdx = "<<ri<<endl;
     //cout<<"adv.findNextBigIdx = "<<ri<<endl;
